@@ -12,6 +12,14 @@ namespace SynetecAssessmentApi.Services
     {
         private readonly AppDbContext _dbContext;
 
+        private Employee Employee;
+
+        public int totalSalary;
+
+        public decimal bonusPercentage;
+
+        public int bonusAllocation;
+
         public BonusPoolService()
         {
             var dbContextOptionBuilder = new DbContextOptionsBuilder<AppDbContext>();
@@ -55,12 +63,8 @@ namespace SynetecAssessmentApi.Services
                 .Include(e => e.Department)
                 .FirstOrDefaultAsync(item => item.Id == selectedEmployeeId);
 
-            //get the total salary budget for the company
-            int totalSalary = (int)_dbContext.Employees.Sum(item => item.Salary);
-
-            //calculate the bonus allocation for the employee
-            decimal bonusPercentage = (decimal)employee.Salary / (decimal)totalSalary;
-            int bonusAllocation = (int)(bonusPercentage * bonusPoolAmount);
+            //Calculate for unit testing
+            Calculate(bonusPoolAmount, employee);
 
             return new BonusPoolCalculatorResultDto
             {
@@ -79,5 +83,17 @@ namespace SynetecAssessmentApi.Services
                 Amount = bonusAllocation
             };
         }
+
+        public void Calculate(int bonusPoolAmount, Employee employee)
+        {
+
+            //get the total salary budget for the company
+            totalSalary = (int)_dbContext.Employees.Sum(item => item.Salary);
+
+            //calculate the bonus allocation for the employee
+            bonusPercentage = (decimal)employee.Salary / (decimal)totalSalary;
+            bonusAllocation = (int)(bonusPercentage * bonusPoolAmount);
+        }
+
     }
 }
